@@ -1,6 +1,5 @@
 require 'ostruct'
 require 'yaml'
-require 'shellwords'
 
 def load_config
   yaml = YAML.load_file('config.yml')
@@ -8,7 +7,7 @@ def load_config
 end
 
 def extract_emails(folder_path)
-  files = Dir.glob(File.join(Shellwords.escape(folder_path), '**/*.emlx'))
+  files = Dir.glob(File.join(folder_path, '**/*.emlx'))
   results = files.map do |file| 
     content = File.read(file).force_encoding("ISO-8859-1")
     content.scan(/^From: .+<(.+)>$/)
