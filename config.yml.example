@@ -1,0 +1,11 @@
+mail_root: /Users/phillip/Library/Mail/V2/IMAP-....
+whitelist_folders:
+    - Arbeit
+    - Privat
+blacklist_folders:
+    - Spam
+never_blacklist:
+    - gmail.com
+    - pingdom.com
+    - tumblr.com
+    - web.de

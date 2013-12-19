@@ -1,0 +1,4 @@
+
+
+Run like this
+> RUBYOPT=-Ku ruby extract.rb
