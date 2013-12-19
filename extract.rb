@@ -8,18 +8,16 @@ def load_config
 end
 
 def extract_emails(folder_path)
-  # -R: recursive, -h: only match, -i: case insensitive
-  # Using grep here since I believe it is faster than reading the files with Ruby (mailbox files can be a few GB large)
-  cmd = %(LC_ALL=\'C\' grep -Rhi "^From: " %s) % [Shellwords.escape(folder_path)]
-  # Some email address names ("Some name" <foo@bar.org) contain byte sequences that #scan can't handle (it expects UTF-8).
-  # Luckily I only care for the email adresses, so I can force the whole text to be treated as latin-1 encoding
-  cmd_result = `#{cmd}`.force_encoding("ISO-8859-1")
-  cmd_result
-    .scan(/<(.+)>/).flatten
-    .reject { |email| email !~ /^[a-z0-9_\-\.@]+$/i }
-    .map { |email| email.downcase.strip }.uniq
+  files = Dir.glob(File.join(Shellwords.escape(folder_path), '**/*.emlx'))
+  results = files.map do |file| 
+    content = File.read(file).force_encoding("ISO-8859-1")
+    content.scan(/^From: .+<(.+)>$/)
+  end
+  results
+    .flatten
+    .grep(/^[a-z0-9_\-\.@]+$/i) { |email| email.downcase.strip }
+    .uniq
     .sort
-
 end
 
 def extract_domains(emails)
@@ -27,7 +25,7 @@ def extract_domains(emails)
 end
 
 def write(file, emails)
-  File.open(file, 'w') { |f| f.write(emails.join("\n")).strip }
+  File.open(file, 'w') { |f| f.write(emails.join("\n").strip) }
 end
 
 def emails_for_folders(mail_root, folder_names)
@@ -39,6 +37,7 @@ end
 
 config = load_config
 
+START = Time.now
 #
 # blacklist
 #
@@ -71,11 +70,8 @@ puts "Wrote whitelist with #{`wc -l whitelist.txt`.split.first.strip} entries."
 # check if domains are on both whitelist and blacklist
 intersection = blacklist_domains & whitelist_domains
 unless intersection.empty?
-  puts "Warning: #{intersection.inspect} are on whitelist and blacklist"
+  puts "Warning: the following domains are both on whitelist and blacklist:"
+  puts '- ' + intersection.sort.join("\n- ")
 end
 
-# show emails
-# emails = emails_for_folders(config.mail_root, %w(Inbox))
-# p extract_domains(emails).uniq
-
-
+puts "\nProcessing took #{Time.now - START}s."
