@@ -1,4 +1,10 @@
+# Description 
 
+A little Ruby script to extract email addresses from Apple Mail. It groups them into two files,
+whitelist.txt and blacklist.txt. Which emails go into which file is configured in config.yml.
 
-Run like this
-> RUBYOPT=-Ku ruby extract.rb
+# Usage
+
+> cp config.yml.example config.yml
+(edit email folder path and folder names in config.yml)
+RUBYOPT=-Ku ruby extract.rb
